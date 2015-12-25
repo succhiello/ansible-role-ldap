@@ -1,0 +1,9 @@
+---
+galaxy_info:
+  author: Peter Sagerson
+  description: manipulating an LDAP directory
+  license: 2-Clause BSD License
+  min_ansible_version: 1.9
+  categories:
+    - ldap
+  dependencies: []
