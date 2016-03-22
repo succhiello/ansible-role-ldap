@@ -4,6 +4,11 @@ galaxy_info:
   description: manipulating an LDAP directory
   license: 2-Clause BSD License
   min_ansible_version: 1.9
+  platforms:
+    - name: GenericUNIX
+      versions:
+        - all
+        - any
   categories:
     - ldap
 dependencies: []
