@@ -28,6 +28,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 from traceback import format_exc
 
+from base64 import b64decode
+
 import ldap
 import ldap.sasl
 
@@ -105,6 +107,10 @@ options:
         required: false
         description:
             - The password to use with C(bind_dn).
+    binary:
+        required: false
+        description:
+            - If true, do b64decode values.
 """
 
 
@@ -158,6 +164,7 @@ def main():
             'start_tls': dict(default='false', choices=BOOLEANS),
             'bind_dn': dict(default=None),
             'bind_pw': dict(default='', no_log=True),
+            'binary': dict(default='false', choices=BOOLEANS)
         },
         supports_check_mode=True,
     )
@@ -182,6 +189,7 @@ class LdapAttr(object):
         self.start_tls = self.module.boolean(self.module.params['start_tls'])
         self.bind_dn = self._utf8_param('bind_dn')
         self.bind_pw = self._utf8_param('bind_pw')
+        self.binary = self.module.boolean(self.module.params['binary'])
 
         self._connection = None
 
@@ -201,7 +209,10 @@ class LdapAttr(object):
         if not (isinstance(values, list) and all(isinstance(value, basestring) for value in values)):
             self.module.fail_json(msg="values must be a string or list of strings.")
 
-        return map(self._force_utf8, values)
+        return [self._force_utf8(self._convert_binary_data(x)) for x in values]
+
+    def _convert_binary_data(self, value):
+        return b64decode(value) if self.binary else value
 
     def _force_utf8(self, value):
         """ If value is unicode, encode to utf-8. """
